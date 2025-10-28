@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Detector</title>
+    <style>
+        /* --- General Styling --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- Main Container --- */
+        .detector-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        /* --- Code Input Area --- */
+        #codeInput {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 1px solid #dfe4ea;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        #codeInput:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* --- Analyze Button --- */
+        #analyzeBtn {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        #analyzeBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+        }
+
+        #analyzeBtn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        /* --- Results Area --- */
+        #results-container {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Loader Spinner */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Result Display */
+        #result-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        #result-text .human { color: #2ecc71; }
+        #result-text .ai { color: #e74c3c; }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%; /* Will be set by JS */
+            background: linear-gradient(90deg, #f1c40f, #e74c3c);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="detector-container">
+        <h1>AI Code Detector</h1>
+        <p class="subtitle">Paste your code below to see if it was likely written by a human or an AI.</p>
+
+        <textarea id="codeInput" placeholder="/* Paste your code here... */&#10;&#10;function helloWorld() {&#10;    console.log('Hello, World!');&#10;}"></textarea>
+
+        <button id="analyzeBtn">Analyze Code</button>
+
+        <div id="results-container" class="hidden">
+            <!-- Loader will be shown here while "analyzing" -->
+            <div id="loader" class="loader hidden"></div>
+
+            <!-- The final result will be shown here -->
+            <div id="result" class="hidden">
+                <p id="result-text"></p>
+                <div class="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <p id="confidence-score" style="text-align: right; margin-top: 5px; font-size: 0.9em; color: #555;"></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Get references to all the HTML elements we need
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const codeInput = document.getElementById('codeInput');
+        const resultsContainer = document.getElementById('results-container');
+        const loader = document.getElementById('loader');
+        const resultDiv = document.getElementById('result');
+        const resultText = document.getElementById('result-text');
+        const progressBar = document.getElementById('progress-bar');
+        const confidenceScore = document.getElementById('confidence-score');
+
+        // Add a click event listener to the button
+        analyzeBtn.addEventListener('click', () => {
+            const code = codeInput.value.trim();
+
+            // 1. Basic validation: Make sure there's code to analyze
+            if (code === '') {
+                alert('Please paste some code into the text box first.');
+                return;
+            }
+
+            // 2. Prepare the UI for analysis
+            resultsContainer.classList.remove('hidden'); // Show the results area
+            resultDiv.classList.add('hidden');         // Hide previous results
+            loader.classList.remove('hidden');         // Show the loading spinner
+            analyzeBtn.disabled = true;                // Disable the button
+            analyzeBtn.textContent = 'Analyzing...';
+
+            // 3. Simulate the AI analysis process (this is the "fake" part)
+            setTimeout(() => {
+                // Generate a random "AI score" between 0 and 100
+                const aiScore = Math.floor(Math.random() * 101);
+                
+                // Determine the result message based on the score
+                let mainMessage, cssClass;
+                if (aiScore > 70) {
+                    mainMessage = "Highly Likely AI-Generated";
+                    cssClass = "ai";
+                } else if (aiScore > 40) {
+                    mainMessage = "Possibly AI-Generated";
+                    cssClass = "ai";
+                } else {
+                    mainMessage = "Likely Human-Written";
+                    cssClass = "human";
+                }
+
+                // 4. Update the UI with the results
+                loader.classList.add('hidden'); // Hide the loader
+                
+                // Update text and class
+                resultText.innerHTML = `Result: <span class="${cssClass}">${mainMessage}</span>`;
+                confidenceScore.textContent = `AI Confidence Score: ${aiScore}%`;
+
+                // Update the progress bar's width and color
+                progressBar.style.width = `${aiScore}%`;
+                if (aiScore < 40) {
+                    // Green-ish for human
+                    progressBar.style.background = 'linear-gradient(90deg, #27ae60, #2ecc71)';
+                } else {
+                    // Red-ish for AI
+                    progressBar.style.background = 'linear-gradient(90deg, #f1c40f, #e74c3c)';
+                }
+                
+                resultDiv.classList.remove('hidden'); // Show the result content
+                
+                // 5. Reset the button
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Again';
+
+            }, 2000); // Wait for 2 seconds (2000 milliseconds) to simulate analysis time
+        });
+    </script>
+
+</body>
+</html>
