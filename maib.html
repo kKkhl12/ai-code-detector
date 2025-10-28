@@ -3,239 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Detector</title>
+    <title>Vercel Error Codes</title>
     <style>
-        /* --- General Styling --- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
+            line-height: 1.6;
+            background-color: #f4f7f9;
             color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
             padding: 20px;
-            box-sizing: border-box;
         }
-
-        /* --- Main Container --- */
-        .detector-container {
-            background-color: #ffffff;
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
             padding: 30px 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 700px;
-            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
-
         h1 {
+            color: #111;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h2 {
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-top: 40px;
         }
-
-        p.subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        /* --- Code Input Area --- */
-        #codeInput {
-            width: 100%;
-            height: 200px;
-            padding: 15px;
-            border: 1px solid #dfe4ea;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            resize: vertical;
-            box-sizing: border-box;
+        .meta-info {
+            font-size: 0.9em;
+            color: #888;
             margin-bottom: 20px;
-            background-color: #fafafa;
         }
-
-        #codeInput:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        .intro-text, .platform-note {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0070f3;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
         }
-
-        /* --- Analyze Button --- */
-        #analyzeBtn {
+        .table-wrapper {
+            overflow-x: auto; /* Makes table responsive on small screens */
+        }
+        table {
             width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-
-        #analyzeBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
-        }
-
-        #analyzeBtn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: translateY(0);
-        }
-
-        /* --- Results Area --- */
-        #results-container {
-            margin-top: 30px;
+        th, td {
+            padding: 12px 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-
-        .hidden {
-            display: none;
+        thead th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #555;
         }
-
-        /* Loader Spinner */
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        tbody tr:hover {
+            background-color: #e9ecef;
         }
-        
-        /* Result Display */
-        #result-text {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
+        code {
+            background-color: #eef1f2;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            color: #d63384;
         }
-
-        #result-text .human { color: #2ecc71; }
-        #result-text .ai { color: #e74c3c; }
-
-        .progress-bar-container {
+        #search-input {
             width: 100%;
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            overflow: hidden;
-            height: 20px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
-
-        #progress-bar {
-            height: 100%;
-            width: 0%; /* Will be set by JS */
-            background: linear-gradient(90deg, #f1c40f, #e74c3c);
-            border-radius: 10px;
-            transition: width 0.5s ease-in-out, background-color 0.5s ease;
+        #search-input:focus {
+            outline: none;
+            border-color: #0070f3;
+            box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.2);
         }
     </style>
 </head>
 <body>
 
-    <main class="detector-container">
-        <h1>AI Code Detector</h1>
-        <p class="subtitle">Paste your code below to see if it was likely written by a human or an AI.</p>
+    <div class="container">
+        <h1>Vercel Error Codes</h1>
+        <p class="meta-info">Last updated March 12, 2025</p>
 
-        <textarea id="codeInput" placeholder="/* Paste your code here... */&#10;&#10;function helloWorld() {&#10;    console.log('Hello, World!');&#10;}"></textarea>
+        <p class="intro-text">
+            When developing your application with Vercel, you may encounter a variety of errors. They can reflect issues that happen with external providers such as domain services or internal problems at the level of your application's deployment or your usage of platform features. For general error handling guidance, see General Errors.
+        </p>
 
-        <button id="analyzeBtn">Analyze Code</button>
+        <input type="text" id="search-input" placeholder="🔍 Search for an error code, category, or status...">
 
-        <div id="results-container" class="hidden">
-            <!-- Loader will be shown here while "analyzing" -->
-            <div id="loader" class="loader hidden"></div>
-
-            <!-- The final result will be shown here -->
-            <div id="result" class="hidden">
-                <p id="result-text"></p>
-                <div class="progress-bar-container">
-                    <div id="progress-bar"></div>
-                </div>
-                <p id="confidence-score" style="text-align: right; margin-top: 5px; font-size: 0.9em; color: #555;"></p>
-            </div>
+        <!-- Application Errors Section -->
+        <h2>Application errors</h2>
+        <div class="table-wrapper">
+            <table id="app-errors-table">
+                <thead>
+                    <tr>
+                        <th>Error Code</th>
+                        <th>Category</th>
+                        <th>HTTP Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>BODY_NOT_A_STRING_FROM_FUNCTION</code></td><td>Function</td><td>502</td></tr>
+                    <tr><td><code>DEPLOYMENT_BLOCKED</code></td><td>Deployment</td><td>403</td></tr>
+                    <tr><td><code>DEPLOYMENT_DELETED</code></td><td>Deployment</td><td>410</td></tr>
+                    <tr><td><code>DEPLOYMENT_DISABLED</code></td><td>Deployment</td><td>402</td></tr>
+                    <tr><td><code>DEPLOYMENT_NOT_FOUND</code></td><td>Deployment</td><td>404</td></tr>
+                    <tr><td><code>DEPLOYMENT_NOT_READY_REDIRECTING</code></td><td>Deployment</td><td>303</td></tr>
+                    <tr><td><code>DEPLOYMENT_PAUSED</code></td><td>Deployment</td><td>503</td></tr>
+                    <tr><td><code>DNS_HOSTNAME_EMPTY</code></td><td>DNS</td><td>502</td></tr>
+                    <tr><td><code>DNS_HOSTNAME_NOT_FOUND</code></td><td>DNS</td><td>502</td></tr>
+                    <tr><td><code>DNS_HOSTNAME_RESOLVE_FAILED</code></td><td>DNS</td><td>502</td></tr>
+                    <tr><td><code>DNS_HOSTNAME_RESOLVED_PRIVATE</code></td><td>DNS</td><td>404</td></tr>
+                    <tr><td><code>DNS_HOSTNAME_SERVER_ERROR</code></td><td>DNS</td><td>502</td></tr>
+                    <tr><td><code>EDGE_FUNCTION_INVOCATION_FAILED</code></td><td>Function</td><td>500</td></tr>
+                    <tr><td><code>EDGE_FUNCTION_INVOCATION_TIMEOUT</code></td><td>Function</td><td>504</td></tr>
+                    <tr><td><code>FALLBACK_BODY_TOO_LARGE</code></td><td>Cache</td><td>502</td></tr>
+                    <tr><td><code>FUNCTION_INVOCATION_FAILED</code></td><td>Function</td><td>500</td></tr>
+                    <tr><td><code>FUNCTION_INVOCATION_TIMEOUT</code></td><td>Function</td><td>504</td></tr>
+                    <tr><td><code>FUNCTION_PAYLOAD_TOO_LARGE</code></td><td>Function</td><td>413</td></tr>
+                    <tr><td><code>FUNCTION_RESPONSE_PAYLOAD_TOO_LARGE</code></td><td>Function</td><td>500</td></tr>
+                    <tr><td><code>FUNCTION_THROTTLED</code></td><td>Function</td><td>503</td></tr>
+                    <tr><td><code>INFINITE_LOOP_DETECTED</code></td><td>Runtime</td><td>508</td></tr>
+                    <tr><td><code>INVALID_IMAGE_OPTIMIZE_REQUEST</code></td><td>Image</td><td>400</td></tr>
+                    <tr><td><code>INVALID_REQUEST_METHOD</code></td><td>Request</td><td>405</td></tr>
+                    <tr><td><code>MALFORMED_REQUEST_HEADER</code></td><td>Request</td><td>400</td></tr>
+                    <tr><td><code>MICROFRONTENDS_MIDDLEWARE_ERROR</code></td><td>Function</td><td>500</td></tr>
+                    <tr><td><code>MICROFRONTENDS_MISSING_FALLBACK_ERROR</code></td><td>Function</td><td>400</td></tr>
+                    <tr><td><code>MIDDLEWARE_INVOCATION_FAILED</code></td><td>Function</td><td>500</td></tr>
+                    <tr><td><code>MIDDLEWARE_INVOCATION_TIMEOUT</code></td><td>Function</td><td>504</td></tr>
+                    <tr><td><code>MIDDLEWARE_RUNTIME_DEPRECATED</code></td><td>Runtime</td><td>503</td></tr>
+                    <tr><td><code>NO_RESPONSE_FROM_FUNCTION</code></td><td>Function</td><td>502</td></tr>
+                    <tr><td><code>NOT_FOUND</code></td><td>Deployment</td><td>404</td></tr>
+                    <tr><td><code>OPTIMIZED_EXTERNAL_IMAGE_REQUEST_FAILED</code></td><td>Image</td><td>502</td></tr>
+                    <tr><td><code>OPTIMIZED_EXTERNAL_IMAGE_REQUEST_INVALID</code></td><td>Image</td><td>502</td></tr>
+                    <tr><td><code>OPTIMIZED_EXTERNAL_IMAGE_REQUEST_UNAUTHORIZED</code></td><td>Image</td><td>502</td></tr>
+                    <tr><td><code>OPTIMIZED_EXTERNAL_IMAGE_TOO_MANY_REDIRECTS</code></td><td>Image</td><td>502</td></tr>
+                    <tr><td><code>RANGE_END_NOT_VALID</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>RANGE_GROUP_NOT_VALID</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>RANGE_MISSING_UNIT</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>RANGE_START_NOT_VALID</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>RANGE_UNIT_NOT_SUPPORTED</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>REQUEST_HEADER_TOO_LARGE</code></td><td>Request</td><td>431</td></tr>
+                    <tr><td><code>RESOURCE_NOT_FOUND</code></td><td>Request</td><td>404</td></tr>
+                    <tr><td><code>ROUTER_CANNOT_MATCH</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>ROUTER_EXTERNAL_TARGET_CONNECTION_ERROR</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>ROUTER_EXTERNAL_TARGET_ERROR</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>ROUTER_EXTERNAL_TARGET_HANDSHAKE_ERROR</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>ROUTER_TOO_MANY_HAS_SELECTIONS</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>SANDBOX_NOT_FOUND</code></td><td>Sandbox</td><td>404</td></tr>
+                    <tr><td><code>SANDBOX_NOT_LISTENING</code></td><td>Sandbox</td><td>502</td></tr>
+                    <tr><td><code>SANDBOX_STOPPED</code></td><td>Sandbox</td><td>410</td></tr>
+                    <tr><td><code>TOO_MANY_FILESYSTEM_CHECKS</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>TOO_MANY_FORKS</code></td><td>Routing</td><td>502</td></tr>
+                    <tr><td><code>TOO_MANY_RANGES</code></td><td>Request</td><td>416</td></tr>
+                    <tr><td><code>URL_TOO_LONG</code></td><td>Request</td><td>414</td></tr>
+                </tbody>
+            </table>
         </div>
-    </main>
+
+        <!-- Platform Errors Section -->
+        <h2>Platform errors</h2>
+        <p class="platform-note">
+            The following errors are related to the Vercel platform. If you encounter one of these errors, contact Vercel support.
+        </p>
+        <div class="table-wrapper">
+            <table id="platform-errors-table">
+                <thead>
+                    <tr>
+                        <th>Error Code</th>
+                        <th>Category</th>
+                        <th>HTTP Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>FUNCTION_THROTTLED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_CACHE_ERROR</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_CACHE_KEY_TOO_LONG</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_CACHE_LOCK_FULL</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_CACHE_LOCK_TIMEOUT</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_DEPLOYMENT_FETCH_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_EDGE_FUNCTION_INVOCATION_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_EDGE_FUNCTION_INVOCATION_TIMEOUT</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_FUNCTION_INVOCATION_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_FUNCTION_INVOCATION_TIMEOUT</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_FUNCTION_NOT_FOUND</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_FUNCTION_NOT_READY</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_FUNCTION_SERVICE_UNAVAILABLE</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_MICROFRONTENDS_BUILD_ERROR</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_MICROFRONTENDS_INVALID_CONFIGURATION_ERROR</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_MICROFRONTENDS_UNEXPECTED_ERROR</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_MISSING_RESPONSE_FROM_CACHE</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_OPTIMIZED_IMAGE_REQUEST_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_ROUTER_CANNOT_PARSE_PATH</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_STATIC_REQUEST_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_UNARCHIVE_FAILED</code></td><td>Internal</td><td>500</td></tr>
+                    <tr><td><code>INTERNAL_UNEXPECTED_ERROR</code></td><td>Internal</td><td>500</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script>
-        // Get references to all the HTML elements we need
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const codeInput = document.getElementById('codeInput');
-        const resultsContainer = document.getElementById('results-container');
-        const loader = document.getElementById('loader');
-        const resultDiv = document.getElementById('result');
-        const resultText = document.getElementById('result-text');
-        const progressBar = document.getElementById('progress-bar');
-        const confidenceScore = document.getElementById('confidence-score');
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-input');
+            const tables = [
+                document.getElementById('app-errors-table'),
+                document.getElementById('platform-errors-table')
+            ];
 
-        // Add a click event listener to the button
-        analyzeBtn.addEventListener('click', () => {
-            const code = codeInput.value.trim();
+            searchInput.addEventListener('keyup', function () {
+                const filter = searchInput.value.toUpperCase();
 
-            // 1. Basic validation: Make sure there's code to analyze
-            if (code === '') {
-                alert('Please paste some code into the text box first.');
-                return;
-            }
+                tables.forEach(table => {
+                    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
-            // 2. Prepare the UI for analysis
-            resultsContainer.classList.remove('hidden'); // Show the results area
-            resultDiv.classList.add('hidden');         // Hide previous results
-            loader.classList.remove('hidden');         // Show the loading spinner
-            analyzeBtn.disabled = true;                // Disable the button
-            analyzeBtn.textContent = 'Analyzing...';
+                    for (let i = 0; i < rows.length; i++) {
+                        const cells = rows[i].getElementsByTagName('td');
+                        let textContent = '';
+                        for (let j = 0; j < cells.length; j++) {
+                            textContent += cells[j].textContent || cells[j].innerText;
+                        }
 
-            // 3. Simulate the AI analysis process (this is the "fake" part)
-            setTimeout(() => {
-                // Generate a random "AI score" between 0 and 100
-                const aiScore = Math.floor(Math.random() * 101);
-                
-                // Determine the result message based on the score
-                let mainMessage, cssClass;
-                if (aiScore > 70) {
-                    mainMessage = "Highly Likely AI-Generated";
-                    cssClass = "ai";
-                } else if (aiScore > 40) {
-                    mainMessage = "Possibly AI-Generated";
-                    cssClass = "ai";
-                } else {
-                    mainMessage = "Likely Human-Written";
-                    cssClass = "human";
-                }
-
-                // 4. Update the UI with the results
-                loader.classList.add('hidden'); // Hide the loader
-                
-                // Update text and class
-                resultText.innerHTML = `Result: <span class="${cssClass}">${mainMessage}</span>`;
-                confidenceScore.textContent = `AI Confidence Score: ${aiScore}%`;
-
-                // Update the progress bar's width and color
-                progressBar.style.width = `${aiScore}%`;
-                if (aiScore < 40) {
-                    // Green-ish for human
-                    progressBar.style.background = 'linear-gradient(90deg, #27ae60, #2ecc71)';
-                } else {
-                    // Red-ish for AI
-                    progressBar.style.background = 'linear-gradient(90deg, #f1c40f, #e74c3c)';
-                }
-                
-                resultDiv.classList.remove('hidden'); // Show the result content
-                
-                // 5. Reset the button
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Analyze Again';
-
-            }, 2000); // Wait for 2 seconds (2000 milliseconds) to simulate analysis time
+                        if (textContent.toUpperCase().indexOf(filter) > -1) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                });
+            });
         });
     </script>
 
